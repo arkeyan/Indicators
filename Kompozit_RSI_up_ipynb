@@ -1,0 +1,535 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/arkeyan/Indicators/blob/main/Kompozit_RSI_up_ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "onmaX1vZDrN8",
+        "outputId": "ad4015b5-b786-45b8-a519-bebb2e5bc05f"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting git+https://github.com/rongardF/tvdatafeed\n",
+            "  Cloning https://github.com/rongardF/tvdatafeed to /tmp/pip-req-build-a47irdy9\n",
+            "  Running command git clone --filter=blob:none --quiet https://github.com/rongardF/tvdatafeed /tmp/pip-req-build-a47irdy9\n",
+            "  Resolved https://github.com/rongardF/tvdatafeed to commit e6f6aaa7de439ac6e454d9b26d2760ded8dc4923\n",
+            "  Preparing metadata (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "Collecting backtesting\n",
+            "  Downloading Backtesting-0.5.0-py3-none-any.whl.metadata (6.3 kB)\n",
+            "Requirement already satisfied: openpyxl in /usr/local/lib/python3.11/dist-packages (3.1.5)\n",
+            "Requirement already satisfied: statsmodels in /usr/local/lib/python3.11/dist-packages (0.14.4)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (4.67.1)\n",
+            "Requirement already satisfied: setuptools in /usr/local/lib/python3.11/dist-packages (from tvdatafeed==2.1.0) (75.1.0)\n",
+            "Requirement already satisfied: pandas in /usr/local/lib/python3.11/dist-packages (from tvdatafeed==2.1.0) (2.2.2)\n",
+            "Requirement already satisfied: websocket-client in /usr/local/lib/python3.11/dist-packages (from tvdatafeed==2.1.0) (1.8.0)\n",
+            "Requirement already satisfied: requests in /usr/local/lib/python3.11/dist-packages (from tvdatafeed==2.1.0) (2.32.3)\n",
+            "Requirement already satisfied: numpy>=1.17.0 in /usr/local/lib/python3.11/dist-packages (from backtesting) (1.26.4)\n",
+            "Requirement already satisfied: bokeh!=3.0.*,>=1.4.0 in /usr/local/lib/python3.11/dist-packages (from backtesting) (3.6.2)\n",
+            "Requirement already satisfied: et-xmlfile in /usr/local/lib/python3.11/dist-packages (from openpyxl) (2.0.0)\n",
+            "Requirement already satisfied: scipy!=1.9.2,>=1.8 in /usr/local/lib/python3.11/dist-packages (from statsmodels) (1.13.1)\n",
+            "Requirement already satisfied: patsy>=0.5.6 in /usr/local/lib/python3.11/dist-packages (from statsmodels) (1.0.1)\n",
+            "Requirement already satisfied: packaging>=21.3 in /usr/local/lib/python3.11/dist-packages (from statsmodels) (24.2)\n",
+            "Requirement already satisfied: Jinja2>=2.9 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (3.1.5)\n",
+            "Requirement already satisfied: contourpy>=1.2 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (1.3.1)\n",
+            "Requirement already satisfied: pillow>=7.1.0 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (11.1.0)\n",
+            "Requirement already satisfied: PyYAML>=3.10 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (6.0.2)\n",
+            "Requirement already satisfied: tornado>=6.2 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (6.3.3)\n",
+            "Requirement already satisfied: xyzservices>=2021.09.1 in /usr/local/lib/python3.11/dist-packages (from bokeh!=3.0.*,>=1.4.0->backtesting) (2025.1.0)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.11/dist-packages (from pandas->tvdatafeed==2.1.0) (2.8.2)\n",
+            "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.11/dist-packages (from pandas->tvdatafeed==2.1.0) (2024.2)\n",
+            "Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.11/dist-packages (from pandas->tvdatafeed==2.1.0) (2025.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests->tvdatafeed==2.1.0) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests->tvdatafeed==2.1.0) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests->tvdatafeed==2.1.0) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests->tvdatafeed==2.1.0) (2024.12.14)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.11/dist-packages (from Jinja2>=2.9->bokeh!=3.0.*,>=1.4.0->backtesting) (3.0.2)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.11/dist-packages (from python-dateutil>=2.8.2->pandas->tvdatafeed==2.1.0) (1.17.0)\n",
+            "Downloading Backtesting-0.5.0-py3-none-any.whl (178 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m178.5/178.5 kB\u001b[0m \u001b[31m3.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hBuilding wheels for collected packages: tvdatafeed\n",
+            "  Building wheel for tvdatafeed (setup.py) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for tvdatafeed: filename=tvdatafeed-2.1.0-py3-none-any.whl size=17533 sha256=a9ff3cf3a528ad718cc7cfac7d42fbbe0cbdbec4610a6a20f6d97af4e25963ec\n",
+            "  Stored in directory: /tmp/pip-ephem-wheel-cache-l1staybg/wheels/0a/ba/99/b27476fd1e4caf0dd70445cdc6798195d3b90005a1501a12f7\n",
+            "Successfully built tvdatafeed\n",
+            "Installing collected packages: tvdatafeed, backtesting\n",
+            "Successfully installed backtesting-0.5.0 tvdatafeed-2.1.0\n",
+            "Collecting tradingview-screener==2.5.0\n",
+            "  Downloading tradingview_screener-2.5.0-py3-none-any.whl.metadata (9.0 kB)\n",
+            "Requirement already satisfied: pandas<3.0.0,>=2.1.2 in /usr/local/lib/python3.11/dist-packages (from tradingview-screener==2.5.0) (2.2.2)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.31.0 in /usr/local/lib/python3.11/dist-packages (from tradingview-screener==2.5.0) (2.32.3)\n",
+            "Requirement already satisfied: numpy>=1.23.2 in /usr/local/lib/python3.11/dist-packages (from pandas<3.0.0,>=2.1.2->tradingview-screener==2.5.0) (1.26.4)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.11/dist-packages (from pandas<3.0.0,>=2.1.2->tradingview-screener==2.5.0) (2.8.2)\n",
+            "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.11/dist-packages (from pandas<3.0.0,>=2.1.2->tradingview-screener==2.5.0) (2024.2)\n",
+            "Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.11/dist-packages (from pandas<3.0.0,>=2.1.2->tradingview-screener==2.5.0) (2025.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.31.0->tradingview-screener==2.5.0) (3.4.1)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.31.0->tradingview-screener==2.5.0) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.31.0->tradingview-screener==2.5.0) (2.3.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.31.0->tradingview-screener==2.5.0) (2024.12.14)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.11/dist-packages (from python-dateutil>=2.8.2->pandas<3.0.0,>=2.1.2->tradingview-screener==2.5.0) (1.17.0)\n",
+            "Downloading tradingview_screener-2.5.0-py3-none-any.whl (43 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m43.5/43.5 kB\u001b[0m \u001b[31m1.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hInstalling collected packages: tradingview-screener\n",
+            "Successfully installed tradingview-screener-2.5.0\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "WARNING:tvDatafeed.main:you are using nologin method, data you access may be limited\n",
+            "WARNING:tvDatafeed.main:you are using nologin method, data you access may be limited\n",
+            "Taramalar ilerliyor:   1%|          | 7/585 [00:07<10:56,  1.14s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "AFYON - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:   3%|▎         | 18/585 [00:21<12:20,  1.31s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "AKFIS işlenirken hata: single positional indexer is out-of-bounds\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:   5%|▌         | 30/585 [00:35<09:38,  1.04s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "ALCTL - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:   5%|▌         | 32/585 [00:37<08:39,  1.06it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "ALGYO - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:   8%|▊         | 48/585 [00:51<07:14,  1.24it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "ARDYZ - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  17%|█▋        | 99/585 [01:39<08:24,  1.04s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "BOBET - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  20%|█▉        | 116/585 [01:54<06:47,  1.15it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "BVSAN - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  23%|██▎       | 134/585 [02:10<06:07,  1.23it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "CRDFA - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  32%|███▏      | 189/585 [02:58<06:00,  1.10it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "ENJSA - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  40%|███▉      | 232/585 [03:38<04:59,  1.18it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "GLRYH - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  40%|████      | 234/585 [03:39<03:50,  1.52it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "GMSTR - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  59%|█████▊    | 343/585 [05:10<04:19,  1.07s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "KUTPO - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  64%|██████▍   | 377/585 [05:41<03:21,  1.03it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "METRO - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  66%|██████▌   | 384/585 [05:49<03:31,  1.05s/it]ERROR:tvDatafeed.main:Connection to remote host was lost.\n",
+            "ERROR:tvDatafeed.main:no data, please check the exchange and symbol\n",
+            "Taramalar ilerliyor:  66%|██████▌   | 385/585 [05:50<03:36,  1.08s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "MOBTL işlenirken hata: 'NoneType' object has no attribute 'rename'\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  69%|██████▉   | 405/585 [06:09<03:01,  1.01s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "OFSYM - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  72%|███████▏  | 423/585 [06:25<02:29,  1.08it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "OZSUB - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  74%|███████▍  | 434/585 [06:34<02:15,  1.12it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "PENGD - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  79%|███████▊  | 460/585 [06:55<01:23,  1.50it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "PENTA - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n",
+            "RGYAS - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  80%|████████  | 470/585 [07:03<01:33,  1.23it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SANEL - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  83%|████████▎ | 483/585 [07:14<01:18,  1.30it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SELVA - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  84%|████████▍ | 491/585 [07:20<00:59,  1.58it/s]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "SMART - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor:  91%|█████████▏| 534/585 [07:58<00:52,  1.03s/it]"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "TTKOM - RSI 50 kırılımı - Zaman Dilimi: Haftalık\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Taramalar ilerliyor: 100%|██████████| 585/585 [08:41<00:00,  1.12it/s]\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "RSI 50 Kırılım Sinyalleri:\n",
+            "   Hisse Adı  Son Fiyat  Kırılım Türü Zaman Dilimi      Kırılım Zamanı\n",
+            "0      AFYON   0.001574  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "1      ALCTL   0.013538  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "2      ALGYO   0.002175  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "3      ARDYZ   0.003869  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "4      BOBET   0.002452  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "5      BVSAN   0.010688  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "6      CRDFA   0.000725  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "7      ENJSA   0.006235  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "8      GLRYH   0.000294  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "9      GMSTR   0.021712  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "10     KUTPO   0.008070  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "11     METRO   0.000275  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "12     OFSYM   0.004291  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "13     OZSUB   0.003434  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "14     PENGD   0.000729  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "15     PENTA   0.001637  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "16     RGYAS   0.012390  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "17     SANEL   0.002652  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "18     SELVA   0.001385  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "19     SMART   0.003260  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "20     TTKOM   0.004918  RSI 50 Üzeri     Haftalık 2025-01-20 06:00:00\n",
+            "RSI 50 kırılım sinyalleri 'rsi_breakout_signals_weekly.xlsx' dosyasına kaydedildi.\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install git+https://github.com/rongardF/tvdatafeed  backtesting TvDatafeed  openpyxl statsmodels tqdm\n",
+        "!pip install tradingview-screener==2.5.0\n",
+        "\n",
+        "\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from tvDatafeed import TvDatafeed, Interval\n",
+        "from tqdm import tqdm\n",
+        "from tradingview_screener import get_all_symbols\n",
+        "import warnings\n",
+        "\n",
+        "warnings.simplefilter(action='ignore', category=FutureWarning)\n",
+        "\n",
+        "# RSI'yi RMA (SMMA) ile hesaplama fonksiyonu\n",
+        "def calculate_rsi_rma(data, length=14):\n",
+        "    delta = data['Close'].diff()\n",
+        "    gain = delta.where(delta > 0, 0)\n",
+        "    loss = -delta.where(delta < 0, 0)\n",
+        "    avg_gain = gain.ewm(com=(length - 1), min_periods=length).mean()\n",
+        "    avg_loss = loss.ewm(com=(length - 1), min_periods=length).mean()\n",
+        "    rs = avg_gain / avg_loss\n",
+        "    rsi = 100 - (100 / (1 + rs))\n",
+        "    return rsi\n",
+        "\n",
+        "# Haftalık tarama yapmak için sabit zaman dilimi\n",
+        "def get_weekly_interval():\n",
+        "    return 'Haftalık', Interval.in_weekly\n",
+        "\n",
+        "# BIST'teki tüm hisse senetlerini otomatik çekme\n",
+        "def get_all_stocks():\n",
+        "    # tradingview_screener'dan tüm hisseleri al\n",
+        "    tv = TvDatafeed()  # TVDatafeed örneği oluştur\n",
+        "    Hisseler = get_all_symbols(market='turkey')  # Türk hisselerini al\n",
+        "    Hisseler = [symbol.replace('BIST:', '') for symbol in Hisseler]  # BIST: kısmını kaldır\n",
+        "    return sorted(Hisseler)  # Sıralı liste döndür\n",
+        "\n",
+        "# Veriyi çekme ve RSI 50 kırılımı analizi yapma\n",
+        "def analyze_rsi_breakout(stock_list):\n",
+        "    interval_name, interval = get_weekly_interval()\n",
+        "    tv = TvDatafeed()\n",
+        "\n",
+        "    # XU100 verisini haftalık olarak çek\n",
+        "    xu100_data = tv.get_hist('XU100', exchange='BIST', interval=interval, n_bars=1000)\n",
+        "    xu100_data.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'}, inplace=True)\n",
+        "\n",
+        "    results = []\n",
+        "    for stock in tqdm(stock_list, desc=\"Taramalar ilerliyor\"):\n",
+        "        try:\n",
+        "            data = tv.get_hist(symbol=f\"{stock}/XU100\", exchange='BIST', interval=interval, n_bars=1000)\n",
+        "            data.rename(columns={'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'}, inplace=True)\n",
+        "            data['RSI'] = calculate_rsi_rma(data)\n",
+        "\n",
+        "            if data['RSI'].iloc[-2] < 50 <= data['RSI'].iloc[-1]:\n",
+        "                results.append([stock, data['Close'].iloc[-1], \"RSI 50 Üzeri\", interval_name, data.index[-1]])\n",
+        "                print(f\"{stock} - RSI 50 kırılımı - Zaman Dilimi: {interval_name}\")\n",
+        "\n",
+        "        except Exception as e:\n",
+        "            print(f\"{stock} işlenirken hata: {e}\")\n",
+        "\n",
+        "    df_results = pd.DataFrame(results, columns=['Hisse Adı', 'Son Fiyat', 'Kırılım Türü', 'Zaman Dilimi', 'Kırılım Zamanı'])\n",
+        "    return df_results\n",
+        "\n",
+        "# Tüm hisseleri çek\n",
+        "stock_list = get_all_stocks()\n",
+        "\n",
+        "# Tarama yap ve sonuçları göster\n",
+        "df_results = analyze_rsi_breakout(stock_list)\n",
+        "print(\"RSI 50 Kırılım Sinyalleri:\")\n",
+        "print(df_results)\n",
+        "\n",
+        "# Excel dosyasına kaydet\n",
+        "excel_file = 'rsi_breakout_signals_weekly.xlsx'\n",
+        "df_results.to_excel(excel_file, index=False)\n",
+        "print(f\"RSI 50 kırılım sinyalleri '{excel_file}' dosyasına kaydedildi.\")"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
